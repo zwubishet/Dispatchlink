@@ -1,0 +1,75 @@
+services:
+  dispatchlink_postgres:
+    container_name: dispatchlink_postgres
+    image: postgres:15
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-dispatchlink}
+      POSTGRES_USER: ${POSTGRES_USER:-dispatchlink_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-dispatchlink_pass}
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - dispatchlink_network
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-dispatchlink_user} -d ${POSTGRES_DB:-dispatchlink}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  dispatchlink_hasura:
+    container_name: dispatchlink_hasura
+    image: hasura/graphql-engine:latest
+    depends_on:
+      dispatchlink_postgres:
+        condition: service_healthy
+    environment:
+      HASURA_GRAPHQL_DATABASE_URL: postgres://${POSTGRES_USER:-dispatchlink_user}:${POSTGRES_PASSWORD:-dispatchlink_pass}@dispatchlink_postgres:5432/${POSTGRES_DB:-dispatchlink}
+      HASURA_GRAPHQL_ENABLE_CONSOLE: "true"
+      HASURA_GRAPHQL_DEV_MODE: "true"
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET:-dispatchlink_admin_secret}
+      HASURA_GRAPHQL_JWT_SECRET: '{"type":"HS256","key":"${JWT_SECRET:-dispatchlink_jwt_secret_key_minimum_32_chars}"}'
+      HASURA_GRAPHQL_UNAUTHORIZED_ROLE: "anonymous"
+      HASURA_GRAPHQL_CORS_DOMAIN: "*"
+      HASURA_GRAPHQL_ENABLE_TELEMETRY: "false"
+      ACTION_BASE_URL: http://dispatchlink_express:${EXPRESS_PORT:-4000}
+    ports:
+      - "${HASURA_PORT:-8080}:8080"
+    networks:
+      - dispatchlink_network
+    restart: unless-stopped
+
+  dispatchlink_express:
+    container_name: dispatchlink_express
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    environment:
+      NODE_ENV: ${NODE_ENV:-development}
+      EXPRESS_PORT: ${EXPRESS_PORT:-4000}
+      HASURA_GRAPHQL_URL: http://dispatchlink_hasura:8080/v1/graphql
+      HASURA_GRAPHQL_ADMIN_SECRET: ${HASURA_GRAPHQL_ADMIN_SECRET:-dispatchlink_admin_secret}
+      JWT_SECRET: ${JWT_SECRET:-dispatchlink_jwt_secret_key_minimum_32_chars}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      POSTGRES_URL: postgres://${POSTGRES_USER:-dispatchlink_user}:${POSTGRES_PASSWORD:-dispatchlink_pass}@dispatchlink_postgres:5432/${POSTGRES_DB:-dispatchlink}
+    ports:
+      - "${EXPRESS_PORT:-4000}:${EXPRESS_PORT:-4000}"
+    volumes:
+      - ./backend:/usr/src/app
+      - /usr/src/app/node_modules
+    depends_on:
+      dispatchlink_postgres:
+        condition: service_healthy
+    networks:
+      - dispatchlink_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  dispatchlink_network:
+    driver: bridge
