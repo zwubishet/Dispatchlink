@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, ChevronRight } from 'lucide-react';
+import { ArrowLeft, Pencil } from 'lucide-react';
 import api from '../lib/api';
 import { StatusBadge, Spinner, Modal } from '../components/ui';
 import { formatCurrency, formatDate, ORDER_STATUS_LABELS } from '../lib/utils';
@@ -20,6 +20,8 @@ export default function OrderDetailPage() {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [statusModal, setStatusModal] = useState(false);
+  const [editModal, setEditModal] = useState(false);
+  const [editForm, setEditForm] = useState({ notes: '', delivery_address: '' });
   const [newStatus, setNewStatus] = useState('');
   const [note, setNote] = useState('');
   const [drivers, setDrivers] = useState([]);
@@ -40,8 +42,22 @@ export default function OrderDetailPage() {
     }
   }
 
-  async function handleStatusUpdate() {
+  async function handleEdit(e) {
+    e.preventDefault();
     setUpdating(true);
+    try {
+      await api.patch(`/orders/${id}/details`, editForm);
+      toast.success('Order updated');
+      setEditModal(false);
+      loadOrder();
+    } catch (err) {
+      toast.error(err.response?.data?.error || 'Update failed');
+    } finally {
+      setUpdating(false);
+    }
+  }
+
+  async function handleStatusUpdate() {    setUpdating(true);
     try {
       await api.patch(`/orders/${id}/status`, {
         status: newStatus,
@@ -79,11 +95,16 @@ export default function OrderDetailPage() {
           </div>
           <div className="flex items-center gap-3">
             <StatusBadge status={order.status} />
-            {nextStatuses.length > 0 && (
+            {order.status === 'pending' && (
               <button
-                onClick={() => setStatusModal(true)}
-                className="btn-primary text-xs py-1.5"
+                onClick={() => { setEditForm({ notes: order.notes || '', delivery_address: order.delivery_address || '' }); setEditModal(true); }}
+                className="btn-secondary text-xs py-1.5"
               >
+                <Pencil size={13} /> Edit
+              </button>
+            )}
+            {nextStatuses.length > 0 && (
+              <button onClick={() => setStatusModal(true)} className="btn-primary text-xs py-1.5">
                 Update Status
               </button>
             )}
@@ -175,52 +196,108 @@ export default function OrderDetailPage() {
         </div>
       </div>
 
-      {/* Status update modal */}
-      <Modal open={statusModal} onClose={() => setStatusModal(false)} title="Update Order Status">
-        <div className="space-y-4">
+      {/* Edit order modal (pending only) */}
+      <Modal open={editModal} onClose={() => setEditModal(false)} title="Edit Order">
+        <form onSubmit={handleEdit} className="space-y-4">
           <div>
-            <label className="label">New Status</label>
-            <select className="input" value={newStatus} onChange={(e) => setNewStatus(e.target.value)}>
-              <option value="">Select status</option>
-              {nextStatuses.map((s) => (
-                <option key={s} value={s}>{ORDER_STATUS_LABELS[s]}</option>
-              ))}
-            </select>
+            <label className="label">Delivery Address</label>
+            <input className="input" value={editForm.delivery_address} onChange={e => setEditForm({ ...editForm, delivery_address: e.target.value })} />
+          </div>
+          <div>
+            <label className="label">Notes</label>
+            <textarea className="input resize-none" rows={3} value={editForm.notes} onChange={e => setEditForm({ ...editForm, notes: e.target.value })} placeholder="Special instructions..." />
+          </div>
+          <div className="flex gap-3 pt-2">
+            <button type="button" className="btn-secondary flex-1" onClick={() => setEditModal(false)}>Cancel</button>
+            <button type="submit" className="btn-primary flex-1 justify-center" disabled={updating}>
+              {updating ? 'Saving...' : 'Save Changes'}
+            </button>
+          </div>
+        </form>
+      </Modal>
+
+      {/* Status update modal */}
+      <Modal open={statusModal} onClose={() => { setStatusModal(false); setNewStatus(''); setNote(''); setDriverId(''); }} title="Update Order Status">
+        <div className="space-y-4">
+
+          {/* Step indicator */}
+          <div className="bg-gray-50 rounded-lg px-4 py-3 flex items-center gap-3">
+            <div className="text-sm text-gray-500">Current status</div>
+            <StatusBadge status={order.status} />
           </div>
 
+          <div>
+            <label className="label">Move to</label>
+            <div className="grid grid-cols-2 gap-2">
+              {nextStatuses.map(s => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => { setNewStatus(s); if (s !== 'assigned') setDriverId(''); }}
+                  className={`px-3 py-2.5 rounded-lg border text-sm font-medium transition-colors text-left
+                    ${newStatus === s
+                      ? 'border-brand-500 bg-brand-50 text-brand-700'
+                      : 'border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                >
+                  {ORDER_STATUS_LABELS[s]}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Driver assignment — shown when moving to assigned */}
           {newStatus === 'assigned' && (
             <div>
-              <label className="label">Assign Driver</label>
-              <select className="input" value={driverId} onChange={(e) => setDriverId(e.target.value)}>
-                <option value="">Select driver</option>
-                {drivers.map((d) => (
-                  <option key={d.id} value={d.id}>
-                    {d.user?.name} — {d.vehicle_plate}
-                  </option>
-                ))}
-              </select>
+              <label className="label">Assign Driver *</label>
+              {drivers.length === 0 ? (
+                <p className="text-sm text-red-500">No drivers available. Add drivers first.</p>
+              ) : (
+                <div className="space-y-2 max-h-48 overflow-y-auto">
+                  {drivers.map(d => (
+                    <button
+                      key={d.id}
+                      type="button"
+                      onClick={() => setDriverId(d.id)}
+                      className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg border text-sm transition-colors
+                        ${driverId === d.id
+                          ? 'border-brand-500 bg-brand-50'
+                          : 'border-gray-200 hover:bg-gray-50'}`}
+                    >
+                      <div className="text-left">
+                        <p className="font-medium text-gray-900">{d.user?.name}</p>
+                        <p className="text-xs text-gray-500">{d.vehicle_plate || 'No plate'} {d.vehicle_type ? `· ${d.vehicle_type}` : ''}</p>
+                      </div>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${d.is_available ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                        {d.is_available ? 'Available' : 'Busy'}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
           )}
 
           <div>
-            <label className="label">Note (optional)</label>
+            <label className="label">Note <span className="text-gray-400 font-normal">(optional)</span></label>
             <textarea
               className="input resize-none"
               rows={2}
               value={note}
-              onChange={(e) => setNote(e.target.value)}
-              placeholder="Add a note..."
+              onChange={e => setNote(e.target.value)}
+              placeholder="Add a note about this update..."
             />
           </div>
 
           <div className="flex gap-3 pt-2">
-            <button className="btn-secondary flex-1" onClick={() => setStatusModal(false)}>Cancel</button>
+            <button className="btn-secondary flex-1" onClick={() => { setStatusModal(false); setNewStatus(''); setNote(''); setDriverId(''); }}>
+              Cancel
+            </button>
             <button
               className="btn-primary flex-1 justify-center"
               onClick={handleStatusUpdate}
-              disabled={!newStatus || updating}
+              disabled={!newStatus || updating || (newStatus === 'assigned' && !driverId)}
             >
-              {updating ? 'Updating...' : 'Confirm'}
+              {updating ? 'Updating...' : `Confirm${newStatus ? ' — ' + ORDER_STATUS_LABELS[newStatus] : ''}`}
             </button>
           </div>
         </div>

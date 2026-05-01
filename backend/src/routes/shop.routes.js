@@ -49,7 +49,14 @@ router.get('/:id', authenticate, async (req, res, next) => {
 // POST /api/shops
 router.post('/', authenticate, async (req, res, next) => {
   try {
-    const { distributor_id, name, owner_name, phone, address, subcity, city } = req.body;
+    const { name, owner_name, phone, address, subcity, city } = req.body;
+    let { distributor_id } = req.body;
+    if (!distributor_id) {
+      const pool = require('../config/db');
+      const r = await pool.query('SELECT id FROM distributors WHERE user_id = $1', [req.user.sub]);
+      distributor_id = r.rows[0]?.id;
+    }
+    if (!distributor_id) return res.status(400).json({ error: 'No distributor linked to this account' });
     const data = await gql(
       `mutation CreateShop($obj: shops_insert_input!) {
         insert_shops_one(object: $obj) {

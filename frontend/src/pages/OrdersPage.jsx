@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Plus, Search, Filter } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Plus, Search } from 'lucide-react';
 import api from '../lib/api';
 import { PageHeader, StatusBadge, Spinner, EmptyState } from '../components/ui';
 import { formatCurrency, formatDate } from '../lib/utils';
@@ -9,6 +9,7 @@ import { ShoppingCart } from 'lucide-react';
 const STATUSES = ['', 'pending', 'confirmed', 'assigned', 'picked_up', 'in_transit', 'delivered', 'cancelled'];
 
 export default function OrdersPage() {
+  const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -46,9 +47,9 @@ export default function OrdersPage() {
         title="Orders"
         subtitle={`${total} total orders`}
         action={
-          <Link to="/orders/new" className="btn-primary">
+          <button className="btn-primary" onClick={() => navigate('/orders/new')}>
             <Plus size={16} /> New Order
-          </Link>
+          </button>
         }
       />
 
@@ -94,12 +95,12 @@ export default function OrdersPage() {
               </thead>
               <tbody className="divide-y divide-gray-50">
                 {filtered.map((order) => (
-                  <tr key={order.id} className="hover:bg-gray-50 transition-colors">
-                    <td className="px-4 py-3">
-                      <Link to={`/orders/${order.id}`} className="font-medium text-brand-600 hover:underline">
-                        {order.order_number}
-                      </Link>
-                    </td>
+                  <tr
+                    key={order.id}
+                    onClick={() => navigate(`/orders/${order.id}`)}
+                    className="hover:bg-gray-50 transition-colors cursor-pointer"
+                  >
+                    <td className="px-4 py-3 font-medium text-brand-600">{order.order_number}</td>
                     <td className="px-4 py-3 text-gray-700">{order.shop?.name || '—'}</td>
                     <td className="px-4 py-3"><StatusBadge status={order.status} /></td>
                     <td className="px-4 py-3 text-right font-medium">{formatCurrency(order.total_amount)}</td>

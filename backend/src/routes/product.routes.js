@@ -50,7 +50,16 @@ router.get('/:id', authenticate, async (req, res, next) => {
 // POST /api/products
 router.post('/', authenticate, async (req, res, next) => {
   try {
-    const { distributor_id, category_id, name, sku, unit, price, initial_stock } = req.body;
+    const { category_id, name, sku, unit, price, initial_stock } = req.body;
+
+    // Resolve distributor from logged-in user
+    const pool = require('../config/db');
+    let { distributor_id } = req.body;
+    if (!distributor_id) {
+      const r = await pool.query('SELECT id FROM distributors WHERE user_id = $1', [req.user.sub]);
+      distributor_id = r.rows[0]?.id;
+    }
+    if (!distributor_id) return res.status(400).json({ error: 'No distributor linked to this account' });
 
     const data = await gql(
       `mutation CreateProduct($obj: products_insert_input!) {

@@ -71,7 +71,13 @@ router.get('/:id', authenticate, async (req, res, next) => {
 router.post('/', authenticate, async (req, res, next) => {
   const client = await pool.connect();
   try {
-    const { shop_id, distributor_id, items, notes, delivery_address } = req.body;
+    const { shop_id, items, notes, delivery_address } = req.body;
+    let { distributor_id } = req.body;
+    if (!distributor_id) {
+      const r = await pool.query('SELECT id FROM distributors WHERE user_id = $1', [req.user.sub]);
+      distributor_id = r.rows[0]?.id;
+    }
+    if (!distributor_id) return res.status(400).json({ error: 'No distributor linked to this account' });
 
     if (!items || items.length === 0) {
       return res.status(400).json({ error: 'Order must have at least one item' });
@@ -128,6 +134,25 @@ router.post('/', authenticate, async (req, res, next) => {
     next(err);
   } finally {
     client.release();
+  }
+});
+
+// PATCH /api/orders/:id/details — edit notes/address on pending orders only
+router.patch('/:id/details', authenticate, async (req, res, next) => {
+  try {
+    const { notes, delivery_address } = req.body;
+    const current = await pool.query('SELECT status FROM orders WHERE id = $1', [req.params.id]);
+    if (!current.rows[0]) return res.status(404).json({ error: 'Order not found' });
+    if (current.rows[0].status !== 'pending') {
+      return res.status(400).json({ error: 'Only pending orders can be edited' });
+    }
+    await pool.query(
+      'UPDATE orders SET notes = $1, delivery_address = $2 WHERE id = $3',
+      [notes, delivery_address, req.params.id]
+    );
+    res.json({ updated: true });
+  } catch (err) {
+    next(err);
   }
 });
 
