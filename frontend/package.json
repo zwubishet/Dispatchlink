@@ -13,6 +13,7 @@
     "@tanstack/react-query": "^5.100.7",
     "axios": "^1.15.2",
     "lucide-react": "^1.14.0",
+    "mapbox-gl": "3.12.0",
     "react": "^19.2.5",
     "react-dom": "^19.2.5",
     "react-hot-toast": "^2.6.0",

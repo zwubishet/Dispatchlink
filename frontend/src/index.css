@@ -31,3 +31,80 @@
     @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
   }
 }
+
+/* ── Mapbox driver markers ─────────────────────────────────────────────── */
+.driver-marker {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  cursor: pointer;
+}
+
+.marker-dot {
+  width: 32px;
+  height: 32px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.25);
+  transition: transform 0.15s ease;
+}
+
+.marker-dot svg {
+  transform: rotate(45deg);
+}
+
+.marker-dot.available {
+  background: #16a34a;
+  color: #fff;
+}
+
+.marker-dot.unavailable {
+  background: #9ca3af;
+  color: #fff;
+}
+
+.driver-marker:hover .marker-dot {
+  transform: rotate(-45deg) scale(1.15);
+}
+
+.marker-label {
+  margin-top: 4px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 6px;
+  padding: 1px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+/* ── Order detail map pins ─────────────────────────────────────────────── */
+.order-map-pin {
+  width: 30px;
+  height: 30px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 8px rgba(0,0,0,.22);
+  color: #fff;
+}
+
+.order-map-label {
+  margin-top: 3px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 5px;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: 600;
+  color: #374151;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(0,0,0,.08);
+}

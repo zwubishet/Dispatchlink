@@ -83,6 +83,7 @@ export default function ProductsPage() {
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     (p.sku || '').toLowerCase().includes(search.toLowerCase())
   );
+  console.log("Filter: ", filtered)
 
   return (
     <div>
@@ -124,8 +125,8 @@ export default function ProductsPage() {
                     <td className="px-4 py-3 text-gray-600 capitalize">{p.unit}</td>
                     <td className="px-4 py-3 text-right font-medium">{formatCurrency(p.price)}</td>
                     <td className="px-4 py-3 text-center">
-                      <span className={`font-medium ${(p.inventory?.quantity_available || 0) <= (p.inventory?.low_stock_threshold || 10) ? 'text-red-600' : 'text-gray-900'}`}>
-                        {p.inventory?.quantity_available ?? '—'}
+                      <span className={`font-medium ${(p.inventory[0]?.quantity_available || 0) <= (p.inventory[0]?.low_stock_threshold || 10) ? 'text-red-600' : 'text-gray-900'}`}>
+                        {p.inventory[0]?.quantity_available ?? '—'}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-center">

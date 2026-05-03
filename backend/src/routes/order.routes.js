@@ -48,20 +48,51 @@ router.get('/', authenticate, async (req, res, next) => {
 // GET /api/orders/:id
 router.get('/:id', authenticate, async (req, res, next) => {
   try {
-    const data = await gql(
-      `query GetOrder($id: uuid!) {
-        orders_by_pk(id: $id) {
-          ${ORDER_FIELDS}
-          order_status_histories(order_by: { created_at: asc }) {
-            id from_status to_status note created_at
-            user { name }
-          }
-        }
-      }`,
-      { id: req.params.id }
+    const { rows } = await pool.query(
+      `SELECT
+         o.id, o.order_number, o.status, o.total_amount, o.notes, o.delivery_address,
+         o.pickup_name, o.pickup_lat, o.pickup_lng,
+         o.dropoff_name, o.dropoff_lat, o.dropoff_lng,
+         o.created_at, o.updated_at,
+         json_build_object('id', s.id, 'name', s.name, 'phone', s.phone, 'address', s.address, 'subcity', s.subcity) AS shop,
+         json_build_object('id', dist.id, 'business_name', dist.business_name) AS distributor,
+         COALESCE((
+           SELECT json_agg(json_build_object(
+             'id', oi.id, 'quantity', oi.quantity, 'unit_price', oi.unit_price, 'subtotal', oi.subtotal,
+             'product', json_build_object('id', p.id, 'name', p.name, 'unit', p.unit)
+           ) ORDER BY oi.id)
+           FROM order_items oi JOIN products p ON p.id = oi.product_id
+           WHERE oi.order_id = o.id
+         ), '[]') AS order_items,
+         (SELECT json_build_object(
+             'id', d.id, 'assigned_at', d.assigned_at, 'picked_up_at', d.picked_up_at, 'delivered_at', d.delivered_at,
+             'driver', json_build_object(
+               'id', dr.id, 'vehicle_plate', dr.vehicle_plate,
+               'user', json_build_object('name', u.name, 'phone', u.phone)
+             )
+           )
+           FROM deliveries d
+           JOIN drivers dr ON dr.id = d.driver_id
+           JOIN users u ON u.id = dr.user_id
+           WHERE d.order_id = o.id LIMIT 1
+         ) AS delivery,
+         COALESCE((
+           SELECT json_agg(json_build_object(
+             'id', h.id, 'from_status', h.from_status, 'to_status', h.to_status,
+             'note', h.note, 'created_at', h.created_at,
+             'user', json_build_object('name', hu.name)
+           ) ORDER BY h.created_at)
+           FROM order_status_history h LEFT JOIN users hu ON hu.id = h.changed_by
+           WHERE h.order_id = o.id
+         ), '[]') AS order_status_histories
+       FROM orders o
+       JOIN shops s ON s.id = o.shop_id
+       JOIN distributors dist ON dist.id = o.distributor_id
+       WHERE o.id = $1`,
+      [req.params.id]
     );
-    if (!data.orders_by_pk) return res.status(404).json({ error: 'Order not found' });
-    res.json(data.orders_by_pk);
+    if (!rows[0]) return res.status(404).json({ error: 'Order not found' });
+    res.json(rows[0]);
   } catch (err) {
     next(err);
   }
@@ -71,7 +102,9 @@ router.get('/:id', authenticate, async (req, res, next) => {
 router.post('/', authenticate, async (req, res, next) => {
   const client = await pool.connect();
   try {
-    const { shop_id, items, notes, delivery_address } = req.body;
+    const { shop_id, items, notes, delivery_address,
+            pickup_name, pickup_lat, pickup_lng,
+            dropoff_name, dropoff_lat, dropoff_lng } = req.body;
     let { distributor_id } = req.body;
     if (!distributor_id) {
       const r = await pool.query('SELECT id FROM distributors WHERE user_id = $1', [req.user.sub]);
@@ -105,9 +138,13 @@ router.post('/', authenticate, async (req, res, next) => {
 
     // Insert order
     const orderResult = await client.query(
-      `INSERT INTO orders (shop_id, distributor_id, total_amount, notes, delivery_address, created_by)
-       VALUES ($1, $2, $3, $4, $5, $6) RETURNING id, order_number`,
-      [shop_id, distributor_id, total_amount, notes, delivery_address, req.user.sub]
+      `INSERT INTO orders (shop_id, distributor_id, total_amount, notes, delivery_address,
+                           pickup_name, pickup_lat, pickup_lng, dropoff_name, dropoff_lat, dropoff_lng, created_by)
+       VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING id, order_number`,
+      [shop_id, distributor_id, total_amount, notes, delivery_address,
+       pickup_name ?? null, pickup_lat ?? null, pickup_lng ?? null,
+       dropoff_name ?? null, dropoff_lat ?? null, dropoff_lng ?? null,
+       req.user.sub]
     );
     const order = orderResult.rows[0];
 
