@@ -256,6 +256,30 @@ router.patch('/:id/status', authenticate, async (req, res, next) => {
         `UPDATE deliveries SET delivered_at = NOW() WHERE order_id = $1`,
         [id]
       );
+
+      // Deduct stock for each order item — log a stock_movement and update inventory
+      const { rows: items } = await client.query(
+        `SELECT product_id, quantity FROM order_items WHERE order_id = $1`,
+        [id]
+      );
+
+      for (const item of items) {
+        // Deduct from inventory (floor at 0)
+        await client.query(
+          `UPDATE inventory
+           SET quantity_available = GREATEST(0, quantity_available - $1),
+               updated_at = NOW()
+           WHERE product_id = $2`,
+          [item.quantity, item.product_id]
+        );
+
+        // Record stock movement
+        await client.query(
+          `INSERT INTO stock_movements (product_id, movement_type, quantity, note, created_by)
+           VALUES ($1, 'out', $2, $3, $4)`,
+          [item.product_id, item.quantity, `Order ${id} delivered`, req.user.sub]
+        );
+      }
     }
 
     await client.query('COMMIT');
