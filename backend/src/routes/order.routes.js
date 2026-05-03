@@ -19,30 +19,34 @@ const ORDER_FIELDS = `
   }
 `;
 
-// GET /api/orders?distributor_id=xxx&status=pending
+// GET /api/orders
 router.get('/', authenticate, async (req, res, next) => {
   try {
     const { distributor_id, status, shop_id, limit = 50, offset = 0 } = req.query;
+    const params = [parseInt(limit), parseInt(offset)];
+    const conditions = [];
+    if (distributor_id) { params.push(distributor_id); conditions.push(`o.distributor_id = $${params.length}`); }
+    if (status)         { params.push(status);         conditions.push(`o.status = $${params.length}`); }
+    if (shop_id)        { params.push(shop_id);        conditions.push(`o.shop_id = $${params.length}`); }
+    const where = conditions.length ? 'WHERE ' + conditions.join(' AND ') : '';
 
-    const where = {};
-    if (distributor_id) where.distributor_id = { _eq: distributor_id };
-    if (status) where.status = { _eq: status };
-    if (shop_id) where.shop_id = { _eq: shop_id };
-
-    const data = await gql(
-      `query GetOrders($where: orders_bool_exp!, $limit: Int!, $offset: Int!) {
-        orders(where: $where, order_by: { created_at: desc }, limit: $limit, offset: $offset) {
-          ${ORDER_FIELDS}
-        }
-        orders_aggregate(where: $where) { aggregate { count } }
-      }`,
-      { where, limit: parseInt(limit), offset: parseInt(offset) }
+    const { rows } = await pool.query(
+      `SELECT o.id, o.order_number, o.status, o.total_amount, o.created_at,
+              json_build_object('id', s.id, 'name', s.name, 'phone', s.phone,
+                'address', s.address, 'subcity', s.subcity) AS shop
+       FROM orders o JOIN shops s ON s.id = o.shop_id
+       ${where}
+       ORDER BY o.created_at DESC LIMIT $1 OFFSET $2`,
+      params
     );
 
-    res.json({ orders: data.orders, total: data.orders_aggregate.aggregate.count });
-  } catch (err) {
-    next(err);
-  }
+    const { rows: countRows } = await pool.query(
+      `SELECT COUNT(*) FROM orders o ${where}`,
+      params.slice(2)
+    );
+
+    res.json({ orders: rows, total: parseInt(countRows[0].count) });
+  } catch (err) { next(err); }
 });
 
 // GET /api/orders/:id

@@ -1,0 +1,18 @@
+services:
+  - type: web
+    name: dispatchlink-api
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node src/server.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: POSTGRES_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      - key: EXPRESS_PORT
+        value: 4000

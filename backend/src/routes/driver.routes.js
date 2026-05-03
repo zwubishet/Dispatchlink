@@ -106,16 +106,15 @@ router.patch('/:id/location', authenticate, async (req, res, next) => {
 // PATCH /api/drivers/:id/availability
 router.patch('/:id/availability', authenticate, async (req, res, next) => {
   try {
+    const pool = require('../config/db');
     const { is_available } = req.body;
-    const data = await gql(
-      `mutation UpdateDriverAvailability($id: uuid!, $available: Boolean!) {
-        update_drivers_by_pk(pk_columns: { id: $id }, _set: { is_available: $available }) {
-          id is_available updated_at
-        }
-      }`,
-      { id: req.params.id, available: is_available }
+    const { rows } = await pool.query(
+      `UPDATE drivers SET is_available = $1, updated_at = NOW()
+       WHERE id = $2 RETURNING id, is_available, updated_at`,
+      [is_available, req.params.id]
     );
-    res.json(data.update_drivers_by_pk);
+    if (!rows[0]) return res.status(404).json({ error: 'Driver not found' });
+    res.json(rows[0]);
   } catch (err) {
     next(err);
   }
