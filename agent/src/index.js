@@ -1,7 +1,8 @@
-// src/index.js
 import { app } from './server.js';
 import { config } from './config/index.js';
 
-app.listen(config.agent.port, () => {
-    console.log(`Dispatchlink Agent running on port ${config.agent.port}`);
+const port = process.env.PORT || config.agent.port || 5000;
+
+app.listen(port, () => {
+    console.log(`Dispatchlink Agent running on port ${port}`);
 });

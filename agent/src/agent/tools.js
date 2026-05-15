@@ -77,17 +77,8 @@ export const tools = [
                 properties: {
                     status: {
                         type: "string",
-                        enum: [
-                            "pending",
-                            "confirmed", 
-                            "assigned",
-                            "picked_up",
-                            "in_transit",
-                            "delivered",
-                            "cancelled",
-                            "rejected"
-                        ],
-                        description: "Order status to filter by"
+                        enum: ["pending", "confirmed", "assigned", "picked_up", "in_transit", "delivered", "cancelled", "rejected"],
+                        description: "The new status. Use 'confirmed' when user says confirm or approve. Use 'assigned' when assigning a driver."
                     },
                     limit: {
                         type: "integer",

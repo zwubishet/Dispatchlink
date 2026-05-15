@@ -16,3 +16,21 @@ services:
         value: 7d
       - key: EXPRESS_PORT
         value: 4000
+
+  - type: web
+    name: dispatchlink-agent
+    runtime: node
+    rootDir: agent
+    buildCommand: npm install
+    startCommand: node src/index.js
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GROQ_API_KEY
+        sync: false
+      - key: DISPATCHLINK_API_URL
+        sync: false
+      - key: DISPATCHLINK_API_SECRET
+        sync: false
+      - key: AGENT_PORT
+        value: 10000
