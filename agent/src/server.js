@@ -11,8 +11,14 @@ const app = express();
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(cors({
-    origin: ['http://localhost:5173', 'https://dispatchlink-backend.onrender.com', 'https://dispatchlink-git-main-addes-projects-6aacb88f.vercel.app/', 'https://dispatchlink-gamma.vercel.app/', 'http://localhost:3000'],
-    methods: ['GET', 'POST']
+    origin: [
+        'http://localhost:5173',
+        'http://localhost:3000',
+        'https://dispatchlink-backend.onrender.com',
+        'https://dispatchlink-git-main-addes-projects-6aacb88f.vercel.app',
+        'https://dispatchlink-gamma.vercel.app',
+    ],
+    methods: ['GET', 'POST'],
 }));
 app.use(express.json({ limit: '10mb' }));
 
