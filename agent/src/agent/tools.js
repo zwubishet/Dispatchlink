@@ -68,27 +68,33 @@ export const tools = [
         }
     },
     {
-        type: "function",
+    type: "function",
         function: {
-            name: "get_orders",
-            description: "Fetches a list of orders with optional filtering by status and pagination.",
+            name: "list_orders",
+            description: "List orders from the system. Use this when user asks to see, show, or get orders. Filter by status if mentioned.",
             parameters: {
                 type: "object",
                 properties: {
                     status: {
                         type: "string",
-                        enum: ["pending", "confirmed", "assigned", "picked_up", "in_transit", "delivered", "rejected", "cancelled"],
-                        description: "Filter by order status"
+                        enum: [
+                            "pending",
+                            "confirmed", 
+                            "assigned",
+                            "picked_up",
+                            "in_transit",
+                            "delivered",
+                            "cancelled",
+                            "rejected"
+                        ],
+                        description: "Order status to filter by"
                     },
                     limit: {
                         type: "integer",
-                        description: "Maximum number of orders to return. Default 20."
-                    },
-                    offset: {
-                        type: "integer",
-                        description: "The number of orders to skip before starting to collect the result set."
+                        description: "How many orders to return. Default is 20."
                     }
-                }
+                },
+                required: []
             }
         }
     },
@@ -96,7 +102,7 @@ export const tools = [
         type: "function",
         function: {
             name: "update_order_status",
-            description: "Updates the status of a specific order, with optional note and driver assignment.",
+            description: "Update the status of a specific order. Call this tool and then immediately give the user a confirmation. Do not call any other tool after this one.",
             parameters: {
                 type: "object",
                 properties: {

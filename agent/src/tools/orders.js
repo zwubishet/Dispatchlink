@@ -1,10 +1,9 @@
 import { apiCall } from '../services/api.js';
 
-export async function get_orders({ status, limit = 20, offset = 0 }) {
+export async function get_orders({ status, limit = 20 }) {
     const params = new URLSearchParams();
     if (status) params.append('status', status);
     params.append('limit', limit);
-    params.append('offset', offset);
 
     const data = await apiCall('GET', `/api/orders?${params.toString()}`);
 

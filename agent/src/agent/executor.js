@@ -14,7 +14,8 @@ export async function executeTool(name, args) {
             return await get_inventory_status(args);
         case 'adjust_inventory':
             return await adjust_inventory(args);
-        case 'get_orders':
+        // in executor.js — update the case
+        case 'list_orders': 
             return await get_orders(args);
         case 'update_order_status':
             return await update_order_status(args);

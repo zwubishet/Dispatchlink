@@ -11,6 +11,7 @@ import InventoryPage from './pages/InventoryPage';
 import ShopsPage from './pages/ShopsPage';
 import DriversPage from './pages/DriversPage';
 import NewOrderPage from './pages/NewOrderPage';
+import AgentChatPage from './pages/AgentChatPage';
 
 function ProtectedRoute({ children }) {
   const { user } = useAuth();
@@ -32,6 +33,7 @@ function AppRoutes() {
       <Route path="/inventory" element={<ProtectedRoute><InventoryPage /></ProtectedRoute>} />
       <Route path="/shops" element={<ProtectedRoute><ShopsPage /></ProtectedRoute>} />
       <Route path="/drivers" element={<ProtectedRoute><DriversPage /></ProtectedRoute>} />
+      <Route path="/agent" element={<ProtectedRoute><AgentChatPage /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
