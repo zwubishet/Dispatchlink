@@ -1,7 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
-import { Truck } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function LoginPage() {
@@ -24,9 +23,11 @@ export default function LoginPage() {
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 bg-brand-400 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-brand-900/20">
-            <Truck size={28} className="text-brand-950" />
-          </div>
+          <img
+            src="/dispatchlink-logo.svg"
+            alt="DispatchLink"
+            className="w-16 h-16 rounded-2xl mb-4 shadow-lg shadow-brand-900/20"
+          />
           <h1 className="text-3xl font-bold text-stone-950">DispatchLink</h1>
           <p className="text-stone-500 text-sm mt-1">Distributor Operations Hub</p>
         </div>

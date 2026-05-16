@@ -43,9 +43,11 @@ export default function Layout({ children }) {
       >
         {/* Logo */}
         <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
-          <div className="w-9 h-9 bg-brand-400 rounded-lg flex items-center justify-center shadow-sm shadow-brand-900/30">
-            <Truck size={17} className="text-brand-950" />
-          </div>
+          <img
+            src="/dispatchlink-logo.svg"
+            alt="DispatchLink"
+            className="w-10 h-10 rounded-lg shadow-sm shadow-brand-900/30"
+          />
           <div>
             <p className="font-bold text-white text-sm leading-none">DispatchLink</p>
             <p className="text-xs text-brand-100/70 mt-1">Distributor Hub</p>
