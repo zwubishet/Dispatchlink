@@ -10,7 +10,7 @@ export async function get_orders({ status, limit = 20 }) {
     if (data.orders.length === 0) return 'No orders found.';
 
     const lines = data.orders.map(o =>
-        `#${o.order_number} | ${o.status} | ${o.total_amount} birr | ${o.shop.name}`
+        `#(Id: ${o.id}) | (order_number: ${o.order_number}) | (status: ${o.status}) | (total_amount: ${o.total_amount} birr) | (shop: ${o.shop.name}) | (Location: ${o.shop.address} - ${o.shop.phone})`
     );
 
     return `Found ${data.total} orders:\n${lines.join('\n')}`;

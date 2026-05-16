@@ -78,7 +78,7 @@ export const tools = [
                     status: {
                         type: "string",
                         enum: ["pending", "confirmed", "assigned", "picked_up", "in_transit", "delivered", "cancelled", "rejected"],
-                        description: "The new status. Use 'confirmed' when user says confirm or approve. Use 'assigned' when assigning a driver."
+                        description: "Filter orders by their current lifecycle state (e.g., 'pending', 'delivered')."
                     },
                     limit: {
                         type: "integer",
@@ -103,6 +103,7 @@ export const tools = [
                     },
                     status: {
                         type: "string",
+                        enum: ["confirmed", "assigned", "picked_up", "in_transit", "delivered", "cancelled", "rejected"],
                         description: "The new status for the order (e.g., pending, confirmed, in_transit, delivered)."
                     },
                     note: {

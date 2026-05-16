@@ -7,6 +7,10 @@ export async function get_available_drivers() {
     //         `#vehicle_plate: ${driver.vehicle_plate} | name: ${driver.user.name} | vehicle_type: ${driver.vehicle_type} | phone: ${driver.user.phone}`
     // })
     if (available.length === 0) return 'No drivers available right now.';
-    return available.map(a=>`Vehicle_plate: ${a.vehicle_plate} | name: ${a.user.name} | vehicle_type: ${a.vehicle_type} | phone: ${a.user.phone}`).join('\n');
+    return available
+    .map(d =>
+        `${d.user.name} (driver_id: ${d.id}) | ${d.user.phone} | plate: ${d.vehicle_plate}`
+    )
+    .join('\n');
 }
 
