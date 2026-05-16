@@ -83,7 +83,6 @@ export default function ProductsPage() {
     p.name.toLowerCase().includes(search.toLowerCase()) ||
     (p.sku || '').toLowerCase().includes(search.toLowerCase())
   );
-  console.log("Filter: ", filtered)
 
   return (
     <div>

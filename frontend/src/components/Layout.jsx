@@ -1,7 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard, ShoppingCart, Package, Store,
-  Truck, BarChart3, LogOut, Menu, X, ChevronRight, Bot,
+  Truck, BarChart3, LogOut, Menu, Bot,
 } from 'lucide-react';
 import { useState } from 'react';
 import { useAuth } from '../context/AuthContext';
@@ -27,28 +27,28 @@ export default function Layout({ children }) {
   }
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden">
+    <div className="flex h-screen bg-[#f8f6ea] overflow-hidden">
       {/* Mobile overlay */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/40 z-20 lg:hidden"
+          className="fixed inset-0 bg-stone-950/45 z-20 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <aside
-        className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-white border-r border-gray-200 flex flex-col transition-transform duration-200
+        className={`fixed lg:static inset-y-0 left-0 z-30 w-64 bg-stone-950 border-r border-brand-900/40 flex flex-col transition-transform duration-200
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}`}
       >
         {/* Logo */}
-        <div className="flex items-center gap-3 px-6 py-5 border-b border-gray-100">
-          <div className="w-8 h-8 bg-brand-600 rounded-lg flex items-center justify-center">
-            <Truck size={16} className="text-white" />
+        <div className="flex items-center gap-3 px-6 py-5 border-b border-white/10">
+          <div className="w-9 h-9 bg-brand-400 rounded-lg flex items-center justify-center shadow-sm shadow-brand-900/30">
+            <Truck size={17} className="text-brand-950" />
           </div>
           <div>
-            <p className="font-bold text-gray-900 text-sm leading-none">DispatchLink</p>
-            <p className="text-xs text-gray-500 mt-0.5">Distributor Hub</p>
+            <p className="font-bold text-white text-sm leading-none">DispatchLink</p>
+            <p className="text-xs text-brand-100/70 mt-1">Distributor Hub</p>
           </div>
         </div>
 
@@ -63,8 +63,8 @@ export default function Layout({ children }) {
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors
                 ${isActive
-                  ? 'bg-brand-50 text-brand-700'
-                  : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                  ? 'bg-brand-400 text-brand-950 shadow-sm shadow-brand-950/20'
+                  : 'text-stone-300 hover:bg-white/10 hover:text-white'
                 }`
               }
             >
@@ -75,20 +75,20 @@ export default function Layout({ children }) {
         </nav>
 
         {/* User */}
-        <div className="px-3 py-4 border-t border-gray-100">
-          <div className="flex items-center gap-3 px-3 py-2 rounded-lg">
+        <div className="px-3 py-4 border-t border-white/10">
+          <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-white/5">
             <div className="w-8 h-8 bg-brand-100 rounded-full flex items-center justify-center">
-              <span className="text-brand-700 text-xs font-bold">
+              <span className="text-brand-800 text-xs font-bold">
                 {user?.name?.charAt(0).toUpperCase()}
               </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-gray-900 truncate">{user?.name}</p>
-              <p className="text-xs text-gray-500 capitalize">{user?.role}</p>
+              <p className="text-sm font-medium text-white truncate">{user?.name}</p>
+              <p className="text-xs text-stone-400 capitalize">{user?.role}</p>
             </div>
             <button
               onClick={handleLogout}
-              className="p-1.5 text-gray-400 hover:text-red-500 rounded-md hover:bg-red-50 transition-colors"
+              className="p-1.5 text-stone-400 hover:text-red-300 rounded-md hover:bg-white/10 transition-colors"
               title="Logout"
             >
               <LogOut size={16} />
@@ -100,11 +100,11 @@ export default function Layout({ children }) {
       {/* Main */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
         {/* Top bar (mobile) */}
-        <header className="lg:hidden flex items-center gap-3 px-4 py-3 bg-white border-b border-gray-200">
-          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-gray-100">
+        <header className="lg:hidden flex items-center gap-3 px-4 py-3 bg-white border-b border-stone-200">
+          <button onClick={() => setSidebarOpen(true)} className="p-2 rounded-lg hover:bg-brand-50">
             <Menu size={20} />
           </button>
-          <span className="font-semibold text-gray-900">DispatchLink</span>
+          <span className="font-semibold text-stone-950">DispatchLink</span>
         </header>
 
         <main className="flex-1 overflow-y-auto p-4 lg:p-6">

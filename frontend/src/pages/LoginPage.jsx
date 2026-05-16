@@ -20,19 +20,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#f8f6ea] px-4">
       <div className="w-full max-w-sm">
         {/* Logo */}
         <div className="flex flex-col items-center mb-8">
-          <div className="w-14 h-14 bg-brand-600 rounded-2xl flex items-center justify-center mb-4 shadow-lg">
-            <Truck size={28} className="text-white" />
+          <div className="w-14 h-14 bg-brand-400 rounded-2xl flex items-center justify-center mb-4 shadow-lg shadow-brand-900/20">
+            <Truck size={28} className="text-brand-950" />
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">DispatchLink</h1>
-          <p className="text-gray-500 text-sm mt-1">Distributor Operations Hub</p>
+          <h1 className="text-3xl font-bold text-stone-950">DispatchLink</h1>
+          <p className="text-stone-500 text-sm mt-1">Distributor Operations Hub</p>
         </div>
 
         <div className="card p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-5">Sign in to your account</h2>
+          <h2 className="text-lg font-semibold text-stone-950 mb-5">Sign in to your account</h2>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
               <label className="label">Phone number</label>
@@ -60,7 +60,7 @@ export default function LoginPage() {
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
           </form>
-          <p className="text-xs text-gray-400 text-center mt-4">
+          <p className="text-xs text-stone-400 text-center mt-4">
             Default: 0900000000 / admin123
           </p>
         </div>

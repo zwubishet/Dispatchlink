@@ -148,9 +148,9 @@ export default function InventoryPage() {
         <form onSubmit={handleAdjust} className="space-y-4">
           <div className="flex gap-2">
             {[
-              { value: 'in', label: 'Stock In', icon: ArrowUp, color: 'text-green-600 border-green-300 bg-green-50' },
+              { value: 'in', label: 'Stock In', icon: ArrowUp, color: 'text-lime-700 border-lime-300 bg-lime-50' },
               { value: 'out', label: 'Stock Out', icon: ArrowDown, color: 'text-red-600 border-red-300 bg-red-50' },
-              { value: 'adjustment', label: 'Set Exact', icon: RefreshCw, color: 'text-blue-600 border-blue-300 bg-blue-50' },
+              { value: 'adjustment', label: 'Set Exact', icon: RefreshCw, color: 'text-brand-700 border-brand-300 bg-brand-50' },
             ].map(({ value, label, icon: Icon, color }) => (
               <button key={value} type="button" onClick={() => setForm({ ...form, movement_type: value })}
                 className={`flex-1 flex flex-col items-center gap-1 py-3 rounded-lg border text-xs font-medium transition-colors

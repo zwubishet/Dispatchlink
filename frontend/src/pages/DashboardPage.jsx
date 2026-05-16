@@ -1,12 +1,11 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  ShoppingCart, Package, Store, Truck,
-  TrendingUp, AlertTriangle, Clock,
+  ShoppingCart, Store, TrendingUp, AlertTriangle,
 } from 'lucide-react';
 import api from '../lib/api';
 import { StatCard, Spinner, StatusBadge } from '../components/ui';
-import { formatCurrency, formatDate } from '../lib/utils';
+import { formatCurrency } from '../lib/utils';
 
 export default function DashboardPage() {
   const [summary, setSummary] = useState(null);
@@ -43,8 +42,8 @@ export default function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-xl font-bold text-gray-900">Dashboard</h1>
-        <p className="text-sm text-gray-500 mt-0.5">Overview of your distribution operations</p>
+        <h1 className="text-2xl font-bold text-stone-950">Dashboard</h1>
+        <p className="text-sm text-stone-500 mt-1">Overview of your distribution operations</p>
       </div>
 
       {/* Stats */}
@@ -54,21 +53,21 @@ export default function DashboardPage() {
           value={summary?.orders?.total || 0}
           sub={`${summary?.orders?.pending || 0} pending`}
           icon={ShoppingCart}
-          color="blue"
+          color="lemon"
         />
         <StatCard
           label="Monthly Revenue"
           value={formatCurrency(summary?.revenue?.monthly_revenue || 0)}
           sub="This month"
           icon={TrendingUp}
-          color="green"
+          color="olive"
         />
         <StatCard
           label="Active Shops"
           value={summary?.shops?.active || 0}
           sub={`${summary?.shops?.total || 0} total`}
           icon={Store}
-          color="purple"
+          color="amber"
         />
         <StatCard
           label="Low Stock Items"
@@ -82,10 +81,10 @@ export default function DashboardPage() {
       {/* Order status breakdown */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[
-          { label: 'Pending', key: 'pending', color: 'bg-yellow-50 border-yellow-200 text-yellow-700' },
-          { label: 'In Transit', key: 'in_transit', color: 'bg-orange-50 border-orange-200 text-orange-700' },
-          { label: 'Delivered', key: 'delivered', color: 'bg-green-50 border-green-200 text-green-700' },
-          { label: 'Cancelled', key: 'cancelled', color: 'bg-gray-50 border-gray-200 text-gray-600' },
+          { label: 'Pending', key: 'pending', color: 'bg-yellow-50 border-yellow-200 text-yellow-800' },
+          { label: 'In Transit', key: 'in_transit', color: 'bg-amber-50 border-amber-200 text-amber-800' },
+          { label: 'Delivered', key: 'delivered', color: 'bg-lime-50 border-lime-200 text-lime-800' },
+          { label: 'Cancelled', key: 'cancelled', color: 'bg-stone-50 border-stone-200 text-stone-600' },
         ].map(({ label, key, color }) => (
           <div key={key} className={`rounded-xl border p-4 ${color}`}>
             <p className="text-2xl font-bold">{summary?.orders?.[key] || 0}</p>
@@ -99,7 +98,7 @@ export default function DashboardPage() {
         <div className="card">
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100">
             <h2 className="font-semibold text-gray-900">Recent Orders</h2>
-            <Link to="/orders" className="text-sm text-brand-600 hover:underline">View all</Link>
+            <Link to="/orders" className="text-sm font-medium text-brand-700 hover:text-brand-900 hover:underline">View all</Link>
           </div>
           <div className="divide-y divide-gray-50">
             {recentOrders.length === 0 ? (

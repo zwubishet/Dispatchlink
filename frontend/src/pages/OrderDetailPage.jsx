@@ -89,7 +89,7 @@ function OrderMap({ pickup, dropoff }) {
           map.current.addLayer({
             id: 'route', type: 'line', source: 'route',
             layout: { 'line-join': 'round', 'line-cap': 'round' },
-            paint: { 'line-color': '#6366f1', 'line-width': 4, 'line-opacity': 0.85 },
+            paint: { 'line-color': '#c8a80a', 'line-width': 4, 'line-opacity': 0.9 },
           });
         }
       } catch { /* silent */ }
@@ -228,7 +228,7 @@ export default function OrderDetailPage() {
                   {order.delivery ? (
                     <>
                       <div className="flex items-center gap-2">
-                        <Truck size={14} className="text-indigo-500" />
+                        <Truck size={14} className="text-brand-600" />
                         <p className="font-semibold text-gray-900">{order.delivery.driver?.user?.name}</p>
                       </div>
                       <p className="text-sm text-gray-500 mt-0.5">{order.delivery.driver?.vehicle_plate}</p>
@@ -247,10 +247,10 @@ export default function OrderDetailPage() {
 
               {/* Route summary (if set) */}
               {hasRoute && (
-                <div className="rounded-xl border border-indigo-100 bg-indigo-50 p-4">
+                <div className="rounded-xl border border-brand-100 bg-brand-50 p-4">
                   <div className="flex items-center gap-1.5 mb-3">
-                    <Navigation size={13} className="text-indigo-500" />
-                    <p className="text-xs font-semibold text-indigo-600 uppercase tracking-wide">Route</p>
+                    <Navigation size={13} className="text-brand-600" />
+                    <p className="text-xs font-semibold text-brand-700 uppercase tracking-wide">Route</p>
                   </div>
                   <div className="space-y-2">
                     <div className="flex items-start gap-2.5">
@@ -260,7 +260,7 @@ export default function OrderDetailPage() {
                         <p className="text-sm text-gray-800 leading-snug">{order.pickup_name}</p>
                       </div>
                     </div>
-                    <div className="ml-1 w-px h-4 bg-indigo-200" />
+                    <div className="ml-1 w-px h-4 bg-brand-200" />
                     <div className="flex items-start gap-2.5">
                       <div className="w-2.5 h-2.5 rounded-full bg-red-500 mt-1 flex-shrink-0" />
                       <div>
@@ -337,7 +337,7 @@ export default function OrderDetailPage() {
                     <span className="text-gray-600">Pickup</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="w-2 h-0.5 bg-indigo-400 rounded" style={{ width: 16 }} />
+                    <span className="w-2 h-0.5 bg-brand-400 rounded" style={{ width: 16 }} />
                     <span className="text-gray-600">Route</span>
                   </div>
                   <div className="flex items-center gap-2">
